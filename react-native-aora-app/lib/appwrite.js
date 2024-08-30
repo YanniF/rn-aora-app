@@ -30,6 +30,16 @@ const storage = new Storage(client);
 const avatars = new Avatars(client);
 const databases = new Databases(client);
 
+const {
+  endpoint,
+  platform,
+  projectId,
+  databaseId,
+  userCollectionId,
+  videoCollectionId,
+  storageId
+} = appwriteConfig
+
 // Register user
 export const createUser = async (email, password, username) => {
   try {
@@ -44,8 +54,8 @@ export const createUser = async (email, password, username) => {
     await signIn(email, password)
 
     return await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
+      databaseId,
+      userCollectionId,
       ID.unique(),
       {
         accountId: newAccount.$id,
@@ -80,8 +90,8 @@ export const getCurrentUser = async () => {
     }
 
     const currentUser = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
+      databaseId,
+      userCollectionId,
       [Query.equal('accountId', currentAccount.$id)]
     )
     console.log(currentUser)
@@ -90,6 +100,21 @@ export const getCurrentUser = async () => {
     }
 
     return currentUser.documents[0]
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
+export const getAllPosts = async () => {
+  try {
+    const posts = await databases.listDocuments(
+      databaseId,
+      videoCollectionId
+    )
+
+    return posts.documents
   }
   catch (error) {
     console.error(error);
