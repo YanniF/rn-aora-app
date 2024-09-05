@@ -4,7 +4,7 @@ import {ResizeMode, Video} from "expo-av";
 
 import { icons } from "../constants";
 
-const VideoCard = ({ video: { title, thumbnail, video, creator: { username, avatar }}}) => {
+const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
   const [play, setPlay] = useState(false);
 
   return (
@@ -30,7 +30,7 @@ const VideoCard = ({ video: { title, thumbnail, video, creator: { username, avat
               className="text-xs text-gray-100 font-pregular"
               numberOfLines={1}
             >
-              {username}
+              {creator}
             </Text>
           </View>
         </View>

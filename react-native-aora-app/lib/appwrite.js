@@ -94,7 +94,7 @@ export const getCurrentUser = async () => {
       userCollectionId,
       [Query.equal('accountId', currentAccount.$id)]
     )
-    console.log(currentUser)
+
     if (!currentUser) {
       throw new Error('User not found')
     }
@@ -129,6 +129,26 @@ export const getLatestPosts = async () => {
       videoCollectionId,
       [Query.orderDesc('$createdAt'), Query.limit(7)]
     )
+
+    return posts.documents
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
+export const searchPosts = async (query) => {
+  try {
+    const posts = await databases.listDocuments(
+      databaseId,
+      videoCollectionId,
+      [Query.search('title', query)]
+    )
+
+    if (!posts) {
+      throw new Error("Something went wrong");
+    }
 
     return posts.documents
   }
