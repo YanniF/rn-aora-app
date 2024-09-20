@@ -121,7 +121,8 @@ export const getAllPosts = async () => {
   try {
     const posts = await databases.listDocuments(
       databaseId,
-      videoCollectionId
+      videoCollectionId,
+      [Query.orderDesc('$createdAt')]
     )
 
     return posts.documents
@@ -173,10 +174,105 @@ export const getUserPosts = async (userId) => {
     const posts = await databases.listDocuments(
       databaseId,
       videoCollectionId,
-      [Query.equal("creator", userId)]
+      [Query.equal("creator", userId), Query.orderDesc('$createdAt')]
     )
 
     return posts.documents
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
+export const likePost = async (postId, userId) => {
+  const post = await databases.listDocuments(
+    databaseId,
+    videoCollectionId,
+    [Query.equal("$id", postId)]
+  )
+
+  return await databases.updateDocument(
+    databaseId,
+    videoCollectionId,
+    postId,
+    {
+      likedBy: post.documents[0]?.likedBy?.concat(userId)
+    },
+  );
+}
+
+export const getLikedPostByUser = async (userId) => {
+
+}
+
+export const getFilePreview = async (fileId, type) => {
+  let fileUrl
+
+  try {
+    if(type === 'video') {
+      fileUrl = storage.getFileView(storageId, fileId)
+    }
+    else if (type === 'image') {
+      fileUrl = storage.getFilePreview(storageId, fileId, 2000, 2000, 'top', 100)
+    }
+    else {
+      throw new Error('Invalid file type')
+    }
+
+    if (!fileUrl) {
+      throw new Error('No file was found')
+    }
+
+    return fileUrl
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
+export const uploadFile = async (file, type) => {
+  if (!file) {
+    return
+  }
+
+  const asset = {
+    name: file.fileName,
+    type: file.mimeType,
+    size: file.fileSize,
+    uri: file.uri,
+  }
+
+  try {
+    const uploadedFile = await storage.createFile(
+      storageId,
+      ID.unique(),
+      asset,
+    )
+
+   return await getFilePreview(uploadedFile.$id, type)
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
+export const createVideoPost = async (form) => {
+  try {
+    const [thumbnailUrl, videoUrl] = await Promise.all([
+      uploadFile(form.thumbnail, 'image'),
+      uploadFile(form.video, 'video')
+    ])
+
+    return await databases.createDocument(databaseId, videoCollectionId, ID.unique(), {
+      title: form.title,
+      thumbnail: thumbnailUrl,
+      video: videoUrl,
+      prompt: form.prompt,
+      creator: form.userId
+    })
   }
   catch (error) {
     console.error(error);

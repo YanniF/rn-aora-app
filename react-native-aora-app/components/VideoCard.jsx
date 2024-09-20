@@ -1,11 +1,28 @@
-import {Text, View, Image, TouchableOpacity} from 'react-native'
+import {Text, View, Image, TouchableOpacity, Alert} from 'react-native'
 import {useState} from 'react'
 import {ResizeMode, Video} from "expo-av";
 
 import { icons } from "../constants";
+import {useGlobalContext} from "../context/GlobalProvider";
+import {likePost} from "../lib/appwrite";
 
-const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
+const VideoCard = ({ id, title, creator, avatar, thumbnail, video, likedBy = [] }) => {
+  const { user } = useGlobalContext();
+
   const [play, setPlay] = useState(false);
+  const [showBookmarkButton, setShowBookmarkButton] = useState(!likedBy?.includes(user.id));
+
+  const handleFavorite = async () => {
+    setShowBookmarkButton(false)
+
+    try {
+      await likePost(id, user.$id);
+    }
+    catch(error) {
+      Alert.alert('Error', error.message);
+      setShowBookmarkButton(true)
+    }
+  }
 
   return (
     <View className="flex flex-col items-center px-4 mb-14">
@@ -35,9 +52,16 @@ const VideoCard = ({ title, creator, avatar, thumbnail, video }) => {
           </View>
         </View>
 
-        <View className="pt-2">
-          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
-        </View>
+        {showBookmarkButton && (
+          <View className="pt-2">
+            <TouchableOpacity
+              onPress={handleFavorite}
+              activeOpacity={0.7}
+            >
+              <Image source={icons.bookmark} className="w-5 h-5" resizeMode="contain" />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {play ? (

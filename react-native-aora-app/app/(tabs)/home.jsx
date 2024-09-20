@@ -10,7 +10,7 @@ import {useGlobalContext} from "../../context/GlobalProvider";
 
 const Home = () => {
   const { user } = useGlobalContext();
-  const { data: posts, loading, refetch } = useAppwrite(getAllPosts)
+  const { data: posts, refetch } = useAppwrite(getAllPosts)
   const { data: latestPosts } = useAppwrite(getLatestPosts)
 
   const [refreshing, setRefreshing] = useState(false);
@@ -31,11 +31,13 @@ const Home = () => {
         keyExtractor={(item) => item.$id}
         renderItem={({item}) => (
           <VideoCard
+            id={item.$id}
             title={item.title}
             thumbnail={item.thumbnail}
             video={item.video}
-            creator={item.creator.username}
-            avatar={item.creator.avatar}
+            creator={item.creator?.username}
+            avatar={item.creator?.avatar}
+            likedBy={item.likedBy}
           />
         )}
         ListHeaderComponent={() => (
