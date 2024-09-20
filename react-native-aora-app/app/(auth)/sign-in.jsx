@@ -6,7 +6,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {images} from '../../constants'
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import {signIn} from "../../lib/appwrite";
+import {createUser, getCurrentUser, signIn} from "../../lib/appwrite";
 import {useGlobalContext} from "../../context/GlobalProvider";
 
 const SignIn = () => {
@@ -28,7 +28,9 @@ const SignIn = () => {
     try {
       const {email, password} = form
 
-      const result = await signIn(email, password)
+      await signIn(email, password)
+
+      const result = await getCurrentUser()
 
       setUser(result);
       setIsLoggedIn(true);

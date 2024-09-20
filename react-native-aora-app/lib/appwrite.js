@@ -81,6 +81,16 @@ export const signIn = async (email, password) => {
   }
 }
 
+export const signOut = async () => {
+  try {
+    return await account.deleteSession('current');
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
 export const getCurrentUser = async () => {
   try {
     const currentAccount = await account.get()
@@ -149,6 +159,22 @@ export const searchPosts = async (query) => {
     if (!posts) {
       throw new Error("Something went wrong");
     }
+
+    return posts.documents
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
+
+export const getUserPosts = async (userId) => {
+  try {
+    const posts = await databases.listDocuments(
+      databaseId,
+      videoCollectionId,
+      [Query.equal("creator", userId)]
+    )
 
     return posts.documents
   }
