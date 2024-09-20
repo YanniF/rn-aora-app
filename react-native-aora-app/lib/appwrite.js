@@ -203,7 +203,19 @@ export const likePost = async (postId, userId) => {
 }
 
 export const getLikedPostByUser = async (userId) => {
+  try {
+    const posts = await databases.listDocuments(
+      databaseId,
+      videoCollectionId,
+      [Query.contains("likedBy", [userId])]
+    )
 
+    return posts.documents
+  }
+  catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
 }
 
 export const getFilePreview = async (fileId, type) => {

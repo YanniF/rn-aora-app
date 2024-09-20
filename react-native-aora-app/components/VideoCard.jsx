@@ -10,7 +10,7 @@ const VideoCard = ({ id, title, creator, avatar, thumbnail, video, likedBy = [] 
   const { user } = useGlobalContext();
 
   const [play, setPlay] = useState(false);
-  const [showBookmarkButton, setShowBookmarkButton] = useState(!likedBy?.includes(user.id));
+  const [showBookmarkButton, setShowBookmarkButton] = useState(!likedBy?.includes(user.$id));
 
   const handleFavorite = async () => {
     setShowBookmarkButton(false)

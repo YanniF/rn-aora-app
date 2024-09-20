@@ -10,15 +10,15 @@ import {useGlobalContext} from "../../context/GlobalProvider";
 
 const Home = () => {
   const { user } = useGlobalContext();
-  const { data: posts, refetch } = useAppwrite(getAllPosts)
-  const { data: latestPosts } = useAppwrite(getLatestPosts)
+  const { data: posts, refetch: refetchMain } = useAppwrite(getAllPosts)
+  const { data: latestPosts, refetch: refetchLatest } = useAppwrite(getLatestPosts)
 
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true)
 
-    await refetch()
+    await Promise.all([refetchMain(), refetchLatest()])
 
     setRefreshing(false)
   }
@@ -55,7 +55,7 @@ const Home = () => {
                 />
               </View>
             </View>
-            <SearchInput placeholder="Search for a video topic"/>
+            <SearchInput placeholder="Search for a video topic" />
 
             <View className="w-full flex-1 pt-5 pb-8">
               <Text className="text-lg font-pregular text-gray-100 mb-3">
